@@ -1,0 +1,11 @@
+# Lightweight runtime image built from a jar already packaged on the host
+# (mvn package). Use this when network conditions make the full multi-stage
+# build (Dockerfile) too slow to pull maven:3.9-eclipse-temurin-21 fresh.
+#
+#   mvn -DskipTests package
+#   docker build -f Dockerfile.local -t projectjava-app .
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY target/live-score-service-*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]

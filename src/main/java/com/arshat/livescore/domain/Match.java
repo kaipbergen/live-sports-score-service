@@ -1,0 +1,75 @@
+package com.arshat.livescore.domain;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import java.time.Instant;
+
+@Entity
+@Table(name = "matches")
+public class Match {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "home_team", nullable = false)
+    private String homeTeam;
+
+    @Column(name = "away_team", nullable = false)
+    private String awayTeam;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MatchStatus status = MatchStatus.SCHEDULED;
+
+    @Column(name = "start_time")
+    private Instant startTime;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt = Instant.now();
+
+    protected Match() {
+        // for JPA
+    }
+
+    public Match(String homeTeam, String awayTeam, Instant startTime) {
+        this.homeTeam = homeTeam;
+        this.awayTeam = awayTeam;
+        this.startTime = startTime;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getHomeTeam() {
+        return homeTeam;
+    }
+
+    public String getAwayTeam() {
+        return awayTeam;
+    }
+
+    public MatchStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MatchStatus status) {
+        this.status = status;
+    }
+
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+}
