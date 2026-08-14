@@ -6,10 +6,12 @@ import com.arshat.livescore.dto.EventAcceptedResponse;
 import com.arshat.livescore.dto.EventResponse;
 import com.arshat.livescore.dto.MatchResponse;
 import com.arshat.livescore.dto.ScoreResponse;
+import com.arshat.livescore.dto.UpdateMatchStatusRequest;
 import com.arshat.livescore.service.MatchService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,6 +46,12 @@ public class MatchController {
     @GetMapping("/{id}")
     public MatchResponse getMatch(@PathVariable Long id) {
         return matchService.getMatch(id);
+    }
+
+    @PatchMapping("/{id}")
+    public MatchResponse updateStatus(@PathVariable Long id,
+                                      @Valid @RequestBody UpdateMatchStatusRequest request) {
+        return matchService.updateStatus(id, request);
     }
 
     @PostMapping("/{id}/events")

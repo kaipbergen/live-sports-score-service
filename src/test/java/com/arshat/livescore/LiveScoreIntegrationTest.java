@@ -9,6 +9,7 @@ import com.arshat.livescore.dto.EventAcceptedResponse;
 import com.arshat.livescore.dto.EventResponse;
 import com.arshat.livescore.dto.MatchResponse;
 import com.arshat.livescore.dto.ScoreResponse;
+import com.arshat.livescore.dto.UpdateMatchStatusRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -82,6 +83,24 @@ class LiveScoreIntegrationTest {
         assertThat(List.of(events))
                 .extracting(EventResponse::type)
                 .containsExactly(EventType.MATCH_STARTED, EventType.GOAL);
+    }
+
+    @Test
+    void adminCanOverrideMatchStatusDirectly() {
+        ResponseEntity<MatchResponse> created = rest.postForEntity(
+                "/matches",
+                new CreateMatchRequest("Dinamo", "Rubin", Instant.now()),
+                MatchResponse.class);
+        Long matchId = created.getBody().id();
+
+        MatchResponse updated = rest.patchForObject(
+                "/matches/{id}", new UpdateMatchStatusRequest(MatchStatus.FINISHED),
+                MatchResponse.class, matchId);
+
+        assertThat(updated.status()).isEqualTo(MatchStatus.FINISHED);
+
+        MatchResponse fetched = rest.getForObject("/matches/{id}", MatchResponse.class, matchId);
+        assertThat(fetched.status()).isEqualTo(MatchStatus.FINISHED);
     }
 
     @Test

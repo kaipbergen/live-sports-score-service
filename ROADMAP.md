@@ -9,7 +9,7 @@ unchecked and gets picked up next run.
 Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY-MM-DD)`).
 
 ## Domain & API completeness
-- [ ] PATCH /matches/{id} to correct match status directly (admin override)
+- [x] PATCH /matches/{id} to correct match status directly (admin override) (Day 1, 2026-08-14)
 - [ ] DELETE /matches/{id} cascading cleanup of its events and score
 - [ ] Pagination on GET /matches and GET /matches/{id}/events
 - [ ] Filter GET /matches by status (LIVE, SCHEDULED, FINISHED)

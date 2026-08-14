@@ -10,6 +10,7 @@ import com.arshat.livescore.dto.EventResponse;
 import com.arshat.livescore.dto.MatchEventMessage;
 import com.arshat.livescore.dto.MatchResponse;
 import com.arshat.livescore.dto.ScoreResponse;
+import com.arshat.livescore.dto.UpdateMatchStatusRequest;
 import com.arshat.livescore.exception.NotFoundException;
 import com.arshat.livescore.kafka.MatchEventProducer;
 import com.arshat.livescore.repository.EventRepository;
@@ -56,6 +57,13 @@ public class MatchService {
     @Transactional(readOnly = true)
     public MatchResponse getMatch(Long matchId) {
         return MatchResponse.from(requireMatch(matchId));
+    }
+
+    @Transactional
+    public MatchResponse updateStatus(Long matchId, UpdateMatchStatusRequest request) {
+        Match match = requireMatch(matchId);
+        match.setStatus(request.status());
+        return MatchResponse.from(match);
     }
 
     @Transactional(readOnly = true)
