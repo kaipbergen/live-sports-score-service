@@ -11,7 +11,7 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 ## Domain & API completeness
 - [x] PATCH /matches/{id} to correct match status directly (admin override) (Day 1, 2026-08-14)
 - [x] DELETE /matches/{id} cascading cleanup of its events and score (Day 1, 2026-08-14)
-- [ ] Pagination on GET /matches and GET /matches/{id}/events
+- [x] Pagination on GET /matches and GET /matches/{id}/events (Day 1, 2026-08-14)
 - [ ] Filter GET /matches by status (LIVE, SCHEDULED, FINISHED)
 - [ ] Filter GET /matches/{id}/events by event type
 - [ ] Bulk match creation endpoint (POST /matches/batch) for seeding a full matchday

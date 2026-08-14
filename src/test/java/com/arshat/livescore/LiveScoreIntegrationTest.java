@@ -8,6 +8,7 @@ import com.arshat.livescore.dto.CreateMatchRequest;
 import com.arshat.livescore.dto.EventAcceptedResponse;
 import com.arshat.livescore.dto.EventResponse;
 import com.arshat.livescore.dto.MatchResponse;
+import com.arshat.livescore.dto.PageResponse;
 import com.arshat.livescore.dto.ScoreResponse;
 import com.arshat.livescore.dto.UpdateMatchStatusRequest;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.testcontainers.junit.jupiter.Container;
@@ -24,7 +27,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -78,9 +80,9 @@ class LiveScoreIntegrationTest {
         });
 
         // 5. Events are recorded
-        EventResponse[] events = rest.getForObject("/matches/{id}/events", EventResponse[].class, matchId);
-        assertThat(events).hasSize(2);
-        assertThat(List.of(events))
+        PageResponse<EventResponse> events = getEvents(matchId);
+        assertThat(events.content()).hasSize(2);
+        assertThat(events.content())
                 .extracting(EventResponse::type)
                 .containsExactly(EventType.MATCH_STARTED, EventType.GOAL);
     }
@@ -111,15 +113,35 @@ class LiveScoreIntegrationTest {
                 MatchResponse.class);
         Long matchId = created.getBody().id();
         publish(matchId, new CreateEventRequest(EventType.MATCH_STARTED, null, null, 0));
-        await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
-            EventResponse[] events = rest.getForObject("/matches/{id}/events", EventResponse[].class, matchId);
-            assertThat(events).hasSize(1);
-        });
+        await().atMost(Duration.ofSeconds(20)).untilAsserted(() ->
+                assertThat(getEvents(matchId).content()).hasSize(1));
 
         rest.delete("/matches/{id}", matchId);
 
         ResponseEntity<String> getAfterDelete = rest.getForEntity("/matches/{id}", String.class, matchId);
         assertThat(getAfterDelete.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void eventsAreReturnedPageByPage() {
+        ResponseEntity<MatchResponse> created = rest.postForEntity(
+                "/matches",
+                new CreateMatchRequest("Ural", "Akhmat", Instant.now()),
+                MatchResponse.class);
+        Long matchId = created.getBody().id();
+        publish(matchId, new CreateEventRequest(EventType.MATCH_STARTED, null, null, 0));
+        publish(matchId, new CreateEventRequest(EventType.GOAL, TeamSide.HOME, "A", 10));
+        publish(matchId, new CreateEventRequest(EventType.GOAL, TeamSide.AWAY, "B", 20));
+        await().atMost(Duration.ofSeconds(20)).untilAsserted(() ->
+                assertThat(getEvents(matchId).content()).hasSize(3));
+
+        PageResponse<EventResponse> firstPage = getEvents(matchId, 0, 2);
+        assertThat(firstPage.content()).hasSize(2);
+        assertThat(firstPage.totalElements()).isEqualTo(3);
+        assertThat(firstPage.totalPages()).isEqualTo(2);
+
+        PageResponse<EventResponse> secondPage = getEvents(matchId, 1, 2);
+        assertThat(secondPage.content()).hasSize(1);
     }
 
     @Test
@@ -135,5 +157,16 @@ class LiveScoreIntegrationTest {
         ResponseEntity<EventAcceptedResponse> response = rest.postForEntity(
                 "/matches/{id}/events", request, EventAcceptedResponse.class, matchId);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+    }
+
+    private PageResponse<EventResponse> getEvents(Long matchId) {
+        return getEvents(matchId, 0, 20);
+    }
+
+    private PageResponse<EventResponse> getEvents(Long matchId, int page, int size) {
+        ResponseEntity<PageResponse<EventResponse>> response = rest.exchange(
+                "/matches/{id}/events?page={page}&size={size}", HttpMethod.GET, null,
+                new ParameterizedTypeReference<PageResponse<EventResponse>>() {}, matchId, page, size);
+        return response.getBody();
     }
 }

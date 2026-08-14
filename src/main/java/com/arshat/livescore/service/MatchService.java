@@ -9,6 +9,7 @@ import com.arshat.livescore.dto.CreateMatchRequest;
 import com.arshat.livescore.dto.EventResponse;
 import com.arshat.livescore.dto.MatchEventMessage;
 import com.arshat.livescore.dto.MatchResponse;
+import com.arshat.livescore.dto.PageResponse;
 import com.arshat.livescore.dto.ScoreResponse;
 import com.arshat.livescore.dto.UpdateMatchStatusRequest;
 import com.arshat.livescore.exception.NotFoundException;
@@ -16,11 +17,11 @@ import com.arshat.livescore.kafka.MatchEventProducer;
 import com.arshat.livescore.repository.EventRepository;
 import com.arshat.livescore.repository.MatchRepository;
 import com.arshat.livescore.repository.ScoreRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -50,8 +51,8 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
-    public List<MatchResponse> getMatches() {
-        return matchRepository.findAll().stream().map(MatchResponse::from).toList();
+    public PageResponse<MatchResponse> getMatches(Pageable pageable) {
+        return PageResponse.from(matchRepository.findAll(pageable).map(MatchResponse::from));
     }
 
     @Transactional(readOnly = true)
@@ -83,11 +84,10 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventResponse> getEvents(Long matchId) {
+    public PageResponse<EventResponse> getEvents(Long matchId, Pageable pageable) {
         requireMatch(matchId);
-        return eventRepository.findByMatchIdOrderByCreatedAtAsc(matchId).stream()
-                .map(EventResponse::from)
-                .toList();
+        return PageResponse.from(
+                eventRepository.findByMatchIdOrderByCreatedAtAsc(matchId, pageable).map(EventResponse::from));
     }
 
     /**

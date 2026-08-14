@@ -5,10 +5,12 @@ import com.arshat.livescore.dto.CreateMatchRequest;
 import com.arshat.livescore.dto.EventAcceptedResponse;
 import com.arshat.livescore.dto.EventResponse;
 import com.arshat.livescore.dto.MatchResponse;
+import com.arshat.livescore.dto.PageResponse;
 import com.arshat.livescore.dto.ScoreResponse;
 import com.arshat.livescore.dto.UpdateMatchStatusRequest;
 import com.arshat.livescore.service.MatchService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +19,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -40,8 +42,9 @@ public class MatchController {
     }
 
     @GetMapping
-    public List<MatchResponse> getMatches() {
-        return matchService.getMatches();
+    public PageResponse<MatchResponse> getMatches(@RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "20") int size) {
+        return matchService.getMatches(PageRequest.of(page, size));
     }
 
     @GetMapping("/{id}")
@@ -75,7 +78,9 @@ public class MatchController {
     }
 
     @GetMapping("/{id}/events")
-    public List<EventResponse> getEvents(@PathVariable Long id) {
-        return matchService.getEvents(id);
+    public PageResponse<EventResponse> getEvents(@PathVariable Long id,
+                                                  @RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "20") int size) {
+        return matchService.getEvents(id, PageRequest.of(page, size));
     }
 }
