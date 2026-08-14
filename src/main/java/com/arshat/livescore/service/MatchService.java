@@ -66,6 +66,14 @@ public class MatchService {
         return MatchResponse.from(match);
     }
 
+    @Transactional
+    public void deleteMatch(Long matchId) {
+        Match match = requireMatch(matchId);
+        eventRepository.deleteByMatchId(matchId);
+        scoreRepository.deleteByMatchId(matchId);
+        matchRepository.delete(match);
+    }
+
     @Transactional(readOnly = true)
     public ScoreResponse getScore(Long matchId) {
         Match match = requireMatch(matchId);

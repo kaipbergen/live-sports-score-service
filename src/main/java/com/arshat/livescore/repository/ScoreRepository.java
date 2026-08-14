@@ -11,6 +11,8 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
 
     Optional<Score> findByMatchId(Long matchId);
 
+    void deleteByMatchId(Long matchId);
+
     /**
      * SELECT ... FOR UPDATE — serializes concurrent score updates for the same
      * match across consumer instances/partitions rebalances.

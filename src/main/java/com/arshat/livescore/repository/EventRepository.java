@@ -11,4 +11,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByMatchIdOrderByCreatedAtAsc(Long matchId);
 
     boolean existsByExternalId(UUID externalId);
+
+    void deleteByMatchId(Long matchId);
 }

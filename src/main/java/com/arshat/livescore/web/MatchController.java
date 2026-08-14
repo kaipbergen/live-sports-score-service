@@ -10,6 +10,7 @@ import com.arshat.livescore.dto.UpdateMatchStatusRequest;
 import com.arshat.livescore.service.MatchService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +53,12 @@ public class MatchController {
     public MatchResponse updateStatus(@PathVariable Long id,
                                       @Valid @RequestBody UpdateMatchStatusRequest request) {
         return matchService.updateStatus(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMatch(@PathVariable Long id) {
+        matchService.deleteMatch(id);
     }
 
     @PostMapping("/{id}/events")

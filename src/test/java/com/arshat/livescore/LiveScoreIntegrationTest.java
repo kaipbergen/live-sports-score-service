@@ -104,6 +104,25 @@ class LiveScoreIntegrationTest {
     }
 
     @Test
+    void deletingMatchRemovesItsEventsAndScore() {
+        ResponseEntity<MatchResponse> created = rest.postForEntity(
+                "/matches",
+                new CreateMatchRequest("Lokomotiv", "Krylia Sovetov", Instant.now()),
+                MatchResponse.class);
+        Long matchId = created.getBody().id();
+        publish(matchId, new CreateEventRequest(EventType.MATCH_STARTED, null, null, 0));
+        await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            EventResponse[] events = rest.getForObject("/matches/{id}/events", EventResponse[].class, matchId);
+            assertThat(events).hasSize(1);
+        });
+
+        rest.delete("/matches/{id}", matchId);
+
+        ResponseEntity<String> getAfterDelete = rest.getForEntity("/matches/{id}", String.class, matchId);
+        assertThat(getAfterDelete.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
     void eventForUnknownMatchReturns404() {
         ResponseEntity<String> response = rest.postForEntity(
                 "/matches/999999/events",
