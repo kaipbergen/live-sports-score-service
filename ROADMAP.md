@@ -16,8 +16,6 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 - [ ] Filter GET /matches/{id}/events by event type
 - [ ] Bulk match creation endpoint (POST /matches/batch) for seeding a full matchday
 - [ ] Idempotency-Key header support on POST /matches (dedupe accidental double-creates)
-- [ ] Reject events for a match that is already FINISHED
-- [ ] Reject events with a minute outside the plausible match duration
 - [ ] Optimistic concurrency (@Version) on Match and Score alongside the existing SELECT FOR UPDATE
 
 ## Kafka & consumer resilience
