@@ -1,5 +1,6 @@
 package com.arshat.livescore.service;
 
+import com.arshat.livescore.domain.Event;
 import com.arshat.livescore.domain.EventType;
 import com.arshat.livescore.domain.Match;
 import com.arshat.livescore.domain.MatchStatus;
@@ -88,10 +89,12 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<EventResponse> getEvents(Long matchId, Pageable pageable) {
+    public PageResponse<EventResponse> getEvents(Long matchId, EventType type, Pageable pageable) {
         requireMatch(matchId);
-        return PageResponse.from(
-                eventRepository.findByMatchIdOrderByCreatedAtAsc(matchId, pageable).map(EventResponse::from));
+        Page<Event> events = type != null
+                ? eventRepository.findByMatchIdAndTypeOrderByCreatedAtAsc(matchId, type, pageable)
+                : eventRepository.findByMatchIdOrderByCreatedAtAsc(matchId, pageable);
+        return PageResponse.from(events.map(EventResponse::from));
     }
 
     /**

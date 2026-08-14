@@ -1,5 +1,6 @@
 package com.arshat.livescore.web;
 
+import com.arshat.livescore.domain.EventType;
 import com.arshat.livescore.domain.MatchStatus;
 import com.arshat.livescore.dto.CreateEventRequest;
 import com.arshat.livescore.dto.CreateMatchRequest;
@@ -81,8 +82,9 @@ public class MatchController {
 
     @GetMapping("/{id}/events")
     public PageResponse<EventResponse> getEvents(@PathVariable Long id,
+                                                  @RequestParam(required = false) EventType type,
                                                   @RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "20") int size) {
-        return matchService.getEvents(id, PageRequest.of(page, size));
+        return matchService.getEvents(id, type, PageRequest.of(page, size));
     }
 }

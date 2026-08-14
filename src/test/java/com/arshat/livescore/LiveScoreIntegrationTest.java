@@ -163,6 +163,27 @@ class LiveScoreIntegrationTest {
     }
 
     @Test
+    void eventsCanBeFilteredByType() {
+        ResponseEntity<MatchResponse> created = rest.postForEntity(
+                "/matches",
+                new CreateMatchRequest("Rostov", "Orenburg", Instant.now()),
+                MatchResponse.class);
+        Long matchId = created.getBody().id();
+        publish(matchId, new CreateEventRequest(EventType.MATCH_STARTED, null, null, 0));
+        publish(matchId, new CreateEventRequest(EventType.GOAL, TeamSide.HOME, "A", 10));
+        publish(matchId, new CreateEventRequest(EventType.GOAL, TeamSide.AWAY, "B", 20));
+        await().atMost(Duration.ofSeconds(20)).untilAsserted(() ->
+                assertThat(getEvents(matchId).content()).hasSize(3));
+
+        PageResponse<EventResponse> goals = getEventsByType(matchId, EventType.GOAL);
+        assertThat(goals.content()).hasSize(2);
+        assertThat(goals.content()).extracting(EventResponse::type).containsOnly(EventType.GOAL);
+
+        PageResponse<EventResponse> started = getEventsByType(matchId, EventType.MATCH_STARTED);
+        assertThat(started.content()).hasSize(1);
+    }
+
+    @Test
     void eventForUnknownMatchReturns404() {
         ResponseEntity<String> response = rest.postForEntity(
                 "/matches/999999/events",
@@ -192,6 +213,13 @@ class LiveScoreIntegrationTest {
         ResponseEntity<PageResponse<EventResponse>> response = rest.exchange(
                 "/matches/{id}/events?page={page}&size={size}", HttpMethod.GET, null,
                 new ParameterizedTypeReference<PageResponse<EventResponse>>() {}, matchId, page, size);
+        return response.getBody();
+    }
+
+    private PageResponse<EventResponse> getEventsByType(Long matchId, EventType type) {
+        ResponseEntity<PageResponse<EventResponse>> response = rest.exchange(
+                "/matches/{id}/events?type={type}", HttpMethod.GET, null,
+                new ParameterizedTypeReference<PageResponse<EventResponse>>() {}, matchId, type);
         return response.getBody();
     }
 }

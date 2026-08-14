@@ -1,6 +1,7 @@
 package com.arshat.livescore.repository;
 
 import com.arshat.livescore.domain.Event;
+import com.arshat.livescore.domain.EventType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,8 @@ import java.util.UUID;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     Page<Event> findByMatchIdOrderByCreatedAtAsc(Long matchId, Pageable pageable);
+
+    Page<Event> findByMatchIdAndTypeOrderByCreatedAtAsc(Long matchId, EventType type, Pageable pageable);
 
     boolean existsByExternalId(UUID externalId);
 
