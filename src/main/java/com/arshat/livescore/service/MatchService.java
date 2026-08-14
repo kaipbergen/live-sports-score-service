@@ -17,6 +17,7 @@ import com.arshat.livescore.kafka.MatchEventProducer;
 import com.arshat.livescore.repository.EventRepository;
 import com.arshat.livescore.repository.MatchRepository;
 import com.arshat.livescore.repository.ScoreRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,8 +52,11 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<MatchResponse> getMatches(Pageable pageable) {
-        return PageResponse.from(matchRepository.findAll(pageable).map(MatchResponse::from));
+    public PageResponse<MatchResponse> getMatches(Pageable pageable, MatchStatus status) {
+        Page<Match> matches = status != null
+                ? matchRepository.findByStatus(status, pageable)
+                : matchRepository.findAll(pageable);
+        return PageResponse.from(matches.map(MatchResponse::from));
     }
 
     @Transactional(readOnly = true)

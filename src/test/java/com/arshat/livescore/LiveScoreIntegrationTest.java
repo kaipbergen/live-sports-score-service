@@ -145,6 +145,24 @@ class LiveScoreIntegrationTest {
     }
 
     @Test
+    void matchesCanBeFilteredByStatus() {
+        ResponseEntity<MatchResponse> created = rest.postForEntity(
+                "/matches",
+                new CreateMatchRequest("Sochi", "Fakel", Instant.now()),
+                MatchResponse.class);
+        Long matchId = created.getBody().id();
+        rest.patchForObject(
+                "/matches/{id}", new UpdateMatchStatusRequest(MatchStatus.LIVE), MatchResponse.class, matchId);
+
+        PageResponse<MatchResponse> liveMatches = getMatches(MatchStatus.LIVE, 0, 200);
+        assertThat(liveMatches.content()).extracting(MatchResponse::id).contains(matchId);
+        assertThat(liveMatches.content()).allSatisfy(m -> assertThat(m.status()).isEqualTo(MatchStatus.LIVE));
+
+        PageResponse<MatchResponse> finishedMatches = getMatches(MatchStatus.FINISHED, 0, 200);
+        assertThat(finishedMatches.content()).extracting(MatchResponse::id).doesNotContain(matchId);
+    }
+
+    @Test
     void eventForUnknownMatchReturns404() {
         ResponseEntity<String> response = rest.postForEntity(
                 "/matches/999999/events",
@@ -157,6 +175,13 @@ class LiveScoreIntegrationTest {
         ResponseEntity<EventAcceptedResponse> response = rest.postForEntity(
                 "/matches/{id}/events", request, EventAcceptedResponse.class, matchId);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+    }
+
+    private PageResponse<MatchResponse> getMatches(MatchStatus status, int page, int size) {
+        ResponseEntity<PageResponse<MatchResponse>> response = rest.exchange(
+                "/matches?status={status}&page={page}&size={size}", HttpMethod.GET, null,
+                new ParameterizedTypeReference<PageResponse<MatchResponse>>() {}, status, page, size);
+        return response.getBody();
     }
 
     private PageResponse<EventResponse> getEvents(Long matchId) {
