@@ -27,6 +27,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -200,6 +201,20 @@ class LiveScoreIntegrationTest {
 
         assertThat(updated.createdAt()).isEqualTo(initial.createdAt());
         assertThat(updated.updatedAt()).isAfter(initial.updatedAt());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void actuatorInfoExposesBuildMetadata() {
+        ResponseEntity<Map<String, Object>> response = rest.exchange(
+                "/actuator/info", HttpMethod.GET, null,
+                new ParameterizedTypeReference<Map<String, Object>>() {});
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Map<String, Object> build = (Map<String, Object>) response.getBody().get("build");
+        assertThat(build).isNotNull();
+        assertThat(build.get("artifact")).isEqualTo("live-score-service");
+        assertThat(build.get("version")).isEqualTo("1.0.0");
     }
 
     @Test

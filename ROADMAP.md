@@ -42,7 +42,7 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 - [ ] Structured JSON logging with correlation/trace IDs
 - [ ] Distributed tracing (Micrometer Tracing + OTel) across REST → Kafka → consumer
 - [ ] Custom Actuator health indicator for Kafka connectivity
-- [ ] /actuator/info populated with build/version metadata
+- [x] /actuator/info populated with build/version metadata (Day 2, 2026-08-17)
 
 ## Testing
 - [ ] Contract test for MatchResponse/ScoreResponse/EventResponse DTO stability
