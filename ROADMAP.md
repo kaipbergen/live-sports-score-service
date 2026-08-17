@@ -63,7 +63,7 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 ## Security & reliability
 - [ ] Rate limiting per client IP on POST /matches/{id}/events
 - [ ] Optional API key auth for write endpoints, env-gated
-- [ ] Max request payload size limit
+- [x] Max request payload size limit (Day 2, 2026-08-17)
 - [ ] Graceful shutdown draining in-flight HTTP requests (server.shutdown: graceful)
 
 ## Docs

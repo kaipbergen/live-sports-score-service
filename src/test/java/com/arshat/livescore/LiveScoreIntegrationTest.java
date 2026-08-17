@@ -218,6 +218,17 @@ class LiveScoreIntegrationTest {
     }
 
     @Test
+    void oversizedRequestBodyIsRejected() {
+        String hugeTeamName = "A".repeat(3 * 1024 * 1024);
+        ResponseEntity<String> response = rest.postForEntity(
+                "/matches",
+                new CreateMatchRequest(hugeTeamName, "Opponent", Instant.now()),
+                String.class);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(413);
+    }
+
+    @Test
     void eventForUnknownMatchReturns404() {
         ResponseEntity<String> response = rest.postForEntity(
                 "/matches/999999/events",
