@@ -14,7 +14,7 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 - [x] Pagination on GET /matches and GET /matches/{id}/events (Day 1, 2026-08-14)
 - [x] Filter GET /matches by status (LIVE, SCHEDULED, FINISHED) (Day 1, 2026-08-14)
 - [x] Filter GET /matches/{id}/events by event type (Day 1, 2026-08-14)
-- [ ] Bulk match creation endpoint (POST /matches/batch) for seeding a full matchday
+- [x] Bulk match creation endpoint (POST /matches/batch) for seeding a full matchday (Day 2, 2026-08-17)
 - [ ] Idempotency-Key header support on POST /matches (dedupe accidental double-creates)
 - [ ] Optimistic concurrency (@Version) on Match and Score alongside the existing SELECT FOR UPDATE
 

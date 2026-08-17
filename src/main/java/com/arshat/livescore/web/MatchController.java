@@ -2,6 +2,7 @@ package com.arshat.livescore.web;
 
 import com.arshat.livescore.domain.EventType;
 import com.arshat.livescore.domain.MatchStatus;
+import com.arshat.livescore.dto.BatchCreateMatchRequest;
 import com.arshat.livescore.dto.CreateEventRequest;
 import com.arshat.livescore.dto.CreateMatchRequest;
 import com.arshat.livescore.dto.EventAcceptedResponse;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -41,6 +43,12 @@ public class MatchController {
     @ResponseStatus(HttpStatus.CREATED)
     public MatchResponse createMatch(@Valid @RequestBody CreateMatchRequest request) {
         return matchService.createMatch(request);
+    }
+
+    @PostMapping("/batch")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<MatchResponse> createMatches(@Valid @RequestBody BatchCreateMatchRequest request) {
+        return matchService.createMatches(request.matches());
     }
 
     @GetMapping

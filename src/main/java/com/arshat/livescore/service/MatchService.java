@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -50,6 +51,13 @@ public class MatchService {
                 new Match(request.homeTeam(), request.awayTeam(), request.startTime()));
         scoreRepository.save(new Score(match));
         return MatchResponse.from(match);
+    }
+
+    @Transactional
+    public List<MatchResponse> createMatches(List<CreateMatchRequest> requests) {
+        return requests.stream()
+                .map(this::createMatch)
+                .toList();
     }
 
     @Transactional(readOnly = true)

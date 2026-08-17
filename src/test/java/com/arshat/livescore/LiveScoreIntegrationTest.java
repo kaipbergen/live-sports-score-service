@@ -3,6 +3,7 @@ package com.arshat.livescore;
 import com.arshat.livescore.domain.EventType;
 import com.arshat.livescore.domain.MatchStatus;
 import com.arshat.livescore.domain.TeamSide;
+import com.arshat.livescore.dto.BatchCreateMatchRequest;
 import com.arshat.livescore.dto.CreateEventRequest;
 import com.arshat.livescore.dto.CreateMatchRequest;
 import com.arshat.livescore.dto.EventAcceptedResponse;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -226,6 +229,37 @@ class LiveScoreIntegrationTest {
                 String.class);
 
         assertThat(response.getStatusCode().value()).isEqualTo(413);
+    }
+
+    @Test
+    void batchCreatesMultipleMatches() {
+        BatchCreateMatchRequest batch = new BatchCreateMatchRequest(List.of(
+                new CreateMatchRequest("Krasnodar", "Ufa", Instant.now()),
+                new CreateMatchRequest("Nizhny Novgorod", "Baltika", Instant.now())));
+
+        ResponseEntity<List<MatchResponse>> response = rest.exchange(
+                "/matches/batch", HttpMethod.POST, new HttpEntity<>(batch),
+                new ParameterizedTypeReference<List<MatchResponse>>() {});
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        List<MatchResponse> created = response.getBody();
+        assertThat(created).hasSize(2);
+        assertThat(created).extracting(MatchResponse::homeTeam).containsExactly("Krasnodar", "Nizhny Novgorod");
+        assertThat(created).allSatisfy(m -> assertThat(m.id()).isNotNull());
+
+        ResponseEntity<MatchResponse> fetched = rest.getForEntity(
+                "/matches/{id}", MatchResponse.class, created.get(0).id());
+        assertThat(fetched.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void batchCreationRejectsEmptyList() {
+        ResponseEntity<String> response = rest.exchange(
+                "/matches/batch", HttpMethod.POST,
+                new HttpEntity<>(new BatchCreateMatchRequest(List.of())),
+                String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
