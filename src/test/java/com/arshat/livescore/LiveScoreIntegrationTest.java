@@ -184,6 +184,25 @@ class LiveScoreIntegrationTest {
     }
 
     @Test
+    void updatingMatchStatusBumpsUpdatedAt() throws InterruptedException {
+        ResponseEntity<MatchResponse> created = rest.postForEntity(
+                "/matches",
+                new CreateMatchRequest("Akademia", "Tambov", Instant.now()),
+                MatchResponse.class);
+        MatchResponse initial = created.getBody();
+        assertThat(initial.createdAt()).isNotNull();
+        assertThat(initial.updatedAt()).isNotNull();
+
+        Thread.sleep(50);
+        MatchResponse updated = rest.patchForObject(
+                "/matches/{id}", new UpdateMatchStatusRequest(MatchStatus.LIVE),
+                MatchResponse.class, initial.id());
+
+        assertThat(updated.createdAt()).isEqualTo(initial.createdAt());
+        assertThat(updated.updatedAt()).isAfter(initial.updatedAt());
+    }
+
+    @Test
     void eventForUnknownMatchReturns404() {
         ResponseEntity<String> response = rest.postForEntity(
                 "/matches/999999/events",

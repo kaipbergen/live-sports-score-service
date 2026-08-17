@@ -10,7 +10,9 @@ public record MatchResponse(
         String homeTeam,
         String awayTeam,
         MatchStatus status,
-        Instant startTime
+        Instant startTime,
+        Instant createdAt,
+        Instant updatedAt
 ) {
     public static MatchResponse from(Match match) {
         return new MatchResponse(
@@ -18,7 +20,9 @@ public record MatchResponse(
                 match.getHomeTeam(),
                 match.getAwayTeam(),
                 match.getStatus(),
-                match.getStartTime()
+                match.getStartTime(),
+                match.getCreatedAt(),
+                match.getUpdatedAt()
         );
     }
 }
