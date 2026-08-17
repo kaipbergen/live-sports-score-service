@@ -8,6 +8,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -23,7 +24,9 @@ import java.util.UUID;
  * delivery.
  */
 @Entity
-@Table(name = "events", uniqueConstraints = @UniqueConstraint(columnNames = "external_id"))
+@Table(name = "events",
+        uniqueConstraints = @UniqueConstraint(columnNames = "external_id"),
+        indexes = @Index(name = "idx_event_match_external", columnList = "match_id, external_id"))
 public class Event {
 
     @Id

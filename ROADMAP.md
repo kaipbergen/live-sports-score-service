@@ -29,7 +29,7 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 
 ## Persistence
 - [ ] Flyway migrations replacing `ddl-auto: update`
-- [ ] Indexes on Match(status) and Event(match_id, external_id) for query performance
+- [x] Indexes on Match(status) and Event(match_id, external_id) for query performance (Day 2, 2026-08-17)
 - [ ] created_at/updated_at audit columns on Match and Score
 - [ ] Repository-level pagination (Pageable) wired through the API layer
 

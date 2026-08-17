@@ -7,12 +7,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "matches")
+@Table(name = "matches", indexes = @Index(name = "idx_match_status", columnList = "status"))
 public class Match {
 
     @Id
