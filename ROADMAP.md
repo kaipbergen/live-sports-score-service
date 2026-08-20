@@ -55,7 +55,7 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 - [ ] CI job matrix testing against two Java LTS versions (21 and latest)
 - [x] .dockerignore file to shrink build context (Day 3, 2026-08-20)
 - [ ] docker-compose healthchecks for Postgres and Kafka dependencies
-- [ ] Makefile with common dev commands (run, test, docker-up)
+- [x] Makefile with common dev commands (run, test, docker-up) (Day 3, 2026-08-20)
 - [ ] CONTRIBUTING.md
 - [ ] LICENSE file (MIT) if missing
 - [ ] CODEOWNERS file
