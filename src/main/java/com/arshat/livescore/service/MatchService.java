@@ -53,6 +53,29 @@ public class MatchService {
         return MatchResponse.from(match);
     }
 
+    /**
+     * A replayed request with a previously-seen Idempotency-Key returns the
+     * match created by the first request instead of creating a duplicate.
+     */
+    @Transactional
+    public MatchCreationResult createMatch(CreateMatchRequest request, String idempotencyKey) {
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            return new MatchCreationResult(createMatch(request), true);
+        }
+        return matchRepository.findByIdempotencyKey(idempotencyKey)
+                .map(existing -> new MatchCreationResult(MatchResponse.from(existing), false))
+                .orElseGet(() -> {
+                    Match match = new Match(request.homeTeam(), request.awayTeam(), request.startTime());
+                    match.setIdempotencyKey(idempotencyKey);
+                    match = matchRepository.save(match);
+                    scoreRepository.save(new Score(match));
+                    return new MatchCreationResult(MatchResponse.from(match), true);
+                });
+    }
+
+    public record MatchCreationResult(MatchResponse response, boolean created) {
+    }
+
     @Transactional
     public List<MatchResponse> createMatches(List<CreateMatchRequest> requests) {
         return requests.stream()

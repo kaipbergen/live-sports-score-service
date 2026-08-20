@@ -27,6 +27,9 @@ public class Match {
     @Column(name = "away_team", nullable = false)
     private String awayTeam;
 
+    @Column(name = "idempotency_key", unique = true)
+    private String idempotencyKey;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MatchStatus status = MatchStatus.SCHEDULED;
@@ -60,6 +63,14 @@ public class Match {
 
     public String getAwayTeam() {
         return awayTeam;
+    }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
+    }
+
+    public void setIdempotencyKey(String idempotencyKey) {
+        this.idempotencyKey = idempotencyKey;
     }
 
     public MatchStatus getStatus() {

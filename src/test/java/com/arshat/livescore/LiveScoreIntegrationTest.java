@@ -19,6 +19,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -260,6 +261,25 @@ class LiveScoreIntegrationTest {
                 String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void repeatingIdempotencyKeyReturnsTheSameMatchInstead() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Idempotency-Key", "match-create-" + java.util.UUID.randomUUID());
+        HttpEntity<CreateMatchRequest> request = new HttpEntity<>(
+                new CreateMatchRequest("Spartak", "Zenit", Instant.now()), headers);
+
+        ResponseEntity<MatchResponse> first = rest.postForEntity("/matches", request, MatchResponse.class);
+        assertThat(first.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Long matchId = first.getBody().id();
+
+        ResponseEntity<MatchResponse> replay = rest.postForEntity("/matches", request, MatchResponse.class);
+        assertThat(replay.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(replay.getBody().id()).isEqualTo(matchId);
+
+        PageResponse<MatchResponse> allMatches = getMatches(null, 0, 500);
+        assertThat(allMatches.content()).extracting(MatchResponse::id).filteredOn(matchId::equals).hasSize(1);
     }
 
     @Test
