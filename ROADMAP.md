@@ -41,7 +41,7 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 - [ ] Micrometer + Prometheus metrics for event processing throughput/latency
 - [ ] Structured JSON logging with correlation/trace IDs
 - [ ] Distributed tracing (Micrometer Tracing + OTel) across REST → Kafka → consumer
-- [ ] Custom Actuator health indicator for Kafka connectivity
+- [x] Custom Actuator health indicator for Kafka connectivity (Day 3, 2026-08-20)
 - [x] /actuator/info populated with build/version metadata (Day 2, 2026-08-17)
 
 ## Testing

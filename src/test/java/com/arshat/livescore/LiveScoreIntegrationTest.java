@@ -235,6 +235,19 @@ class LiveScoreIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void actuatorReportsKafkaConnectivity() {
+        ResponseEntity<Map<String, Object>> response = rest.exchange(
+                "/actuator/health/kafka", HttpMethod.GET, null,
+                new ParameterizedTypeReference<Map<String, Object>>() {});
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().get("status")).isEqualTo("UP");
+        Map<String, Object> details = (Map<String, Object>) response.getBody().get("details");
+        assertThat(details.get("clusterId")).isNotNull();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void actuatorInfoExposesBuildMetadata() {
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 "/actuator/info", HttpMethod.GET, null,
