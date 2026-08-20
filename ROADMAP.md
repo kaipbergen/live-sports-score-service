@@ -16,7 +16,7 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 - [x] Filter GET /matches/{id}/events by event type (Day 1, 2026-08-14)
 - [x] Bulk match creation endpoint (POST /matches/batch) for seeding a full matchday (Day 2, 2026-08-17)
 - [x] Idempotency-Key header support on POST /matches (dedupe accidental double-creates) (Day 3, 2026-08-20)
-- [ ] Optimistic concurrency (@Version) on Match and Score alongside the existing SELECT FOR UPDATE
+- [x] Optimistic concurrency (@Version) on Match and Score alongside the existing SELECT FOR UPDATE (Day 3, 2026-08-20)
 
 ## Kafka & consumer resilience
 - [ ] Dead letter topic for events that fail processing after N retries

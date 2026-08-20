@@ -12,6 +12,8 @@ import com.arshat.livescore.dto.MatchResponse;
 import com.arshat.livescore.dto.PageResponse;
 import com.arshat.livescore.dto.ScoreResponse;
 import com.arshat.livescore.dto.UpdateMatchStatusRequest;
+import com.arshat.livescore.domain.Match;
+import com.arshat.livescore.repository.MatchRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
@@ -34,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 
 /**
@@ -55,6 +59,28 @@ class LiveScoreIntegrationTest {
 
     @Autowired
     private TestRestTemplate rest;
+
+    @Autowired
+    private MatchRepository matchRepository;
+
+    @Test
+    void staleMatchUpdateFailsOptimisticLock() {
+        ResponseEntity<MatchResponse> created = rest.postForEntity(
+                "/matches",
+                new CreateMatchRequest("Torpedo", "Khimki", Instant.now()),
+                MatchResponse.class);
+        Long matchId = created.getBody().id();
+
+        Match copy1 = matchRepository.findById(matchId).orElseThrow();
+        Match copy2 = matchRepository.findById(matchId).orElseThrow();
+
+        copy1.setStatus(MatchStatus.LIVE);
+        matchRepository.save(copy1);
+
+        copy2.setStatus(MatchStatus.FINISHED);
+        assertThatThrownBy(() -> matchRepository.save(copy2))
+                .isInstanceOf(ObjectOptimisticLockingFailureException.class);
+    }
 
     @Test
     void fullMatchFlow() {
