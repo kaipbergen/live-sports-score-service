@@ -1,0 +1,9 @@
+target/
+*.class
+.git/
+.idea/
+*.iml
+.DS_Store
+README.md
+ROADMAP.md
+scripts/

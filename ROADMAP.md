@@ -53,7 +53,7 @@ Progress is tracked by checking items off below (`- [ ]` → `- [x] (Day N, YYYY
 ## CI/CD & devex
 - [ ] GitHub Actions CI (mvn test on push, using Testcontainers)
 - [ ] CI job matrix testing against two Java LTS versions (21 and latest)
-- [ ] .dockerignore file to shrink build context
+- [x] .dockerignore file to shrink build context (Day 3, 2026-08-20)
 - [ ] docker-compose healthchecks for Postgres and Kafka dependencies
 - [ ] Makefile with common dev commands (run, test, docker-up)
 - [ ] CONTRIBUTING.md
